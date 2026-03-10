@@ -1,0 +1,103 @@
+# p2fmdconfig.toml - 项目配置文件示例
+# 位于项目根目录（由 --execpath 指定，默认为当前目录）
+
+[rule.basic]
+
+# unix_hide: true 表示默认排除所有以点开头的文件和目录（如 .git、.env 等）
+# 该规则始终应用于所有文件，但可通过附加规则覆盖
+unix_hide = true
+
+# extension: 指定需要包含的文件扩展名（无前导点）
+# 只有扩展名在此列表中的文件才会被考虑（除非被附加规则强制包含）
+# 若列表为空，则包含所有文件（但仍受 unix_hide 和附加规则限制）
+extension = [
+    # Java
+    "java", "properties", "xml", "gradle", "yml", "yaml", "json",
+    # Kotlin
+    "kt", "kts", "pro",
+    # JavaScript/TypeScript
+    "js", "mjs", "cjs", "jsx", "ts", "tsx",
+    # Dart/Flutter
+    "dart", "plist",
+    # HTML
+    "html", "htm", "htaccess",
+    # CSS
+    "css",
+    # Rust
+    "rs", "toml",
+    # Shell/Batch
+    "sh", "bat"
+]
+
+# 附加规则：按顺序从上到下应用，后面的规则可以覆盖前面的规则
+# 每个规则必须包含 Action（"include" 或 "hide"），并可包含以下匹配条件：
+# - name : 匹配文件名（支持 fnmatch 通配符，如 *.log、?、[abc]）
+# - path : 匹配文件所在目录的相对路径（同样支持通配符）
+# - regex: 匹配文件的完整相对路径（使用正则表达式）
+#
+# 每个条件字段可以接受三种形式：
+# - 字符串：表示单个条件（如 name = "main.rs"）
+# - 数组 ：表示"任一匹配"（OR），例如 name = ["*.log", "*.tmp"] 匹配任意一种
+# - 表 ：表示"全部匹配"（AND），例如 regex = { r1 = "test", r2 = "\\.py$" } 必须同时满足所有正则
+#
+# 一个规则可以同时指定多个条件字段（如 name 和 path），此时这些字段之间是"与"关系：必须同时满足所有字段。
+
+# 示例1：强制包含 .gitignore（即使被 unix_hide 隐藏）
+[[rule.attached]]
+Action = "include"
+name = ".gitignore"
+
+# 示例2：强制包含所有 Dockerfile（不区分大小写，使用通配符）
+[[rule.attached]]
+Action = "include"
+name = "*[dD]ockerfile*"  # 匹配 Dockerfile、dockerfile、Dockerfile.txt 等
+
+# 示例3：强制包含 .dockerignore
+[[rule.attached]]
+Action = "include"
+name = ".dockerignore"
+
+# 示例4：强制包含 .env 文件（任意目录）
+[[rule.attached]]
+Action = "include"
+name = ".env"
+
+# 示例5：只包含 config 目录下的 .conf 文件（.conf 不在基础扩展名中，需强制包含）
+[[rule.attached]]
+Action = "include"
+name = "*.conf"   # 匹配所有 .conf 文件
+path = "config"   # 限定路径必须在 config 目录或其子目录下
+
+# 示例6：使用正则匹配所有包含 "test" 的文件（相对路径）
+[[rule.attached]]
+Action = "include"
+regex = ".*test.*"  # 相对路径中包含 test 即匹配
+
+# 示例7：覆盖演示：先隐藏所有 .log，再强制包含 debug.log
+[[rule.attached]]
+Action = "hide"
+name = "*.log"      # 隐藏所有 .log 文件
+
+[[rule.attached]]
+Action = "include"
+name = "debug.log"  # 后面的规则覆盖前面的，debug.log 最终被包含
+
+# 示例8：使用数组（OR）匹配多个目录
+# 例如，在 docs 或 examples 目录下包含所有 .md 文件
+[[rule.attached]]
+Action = "include"
+name = "*.md"
+path = ["docs", "examples"]  # 文件位于 docs 或 examples 下即可（OR）
+
+# 示例9：使用表（AND）实现多正则同时匹配
+# 例如，包含所有同时包含 "test" 且以 .py 结尾的文件
+[[rule.attached]]
+Action = "include"
+regex = { r1 = ".*test.*", r2 = ".*\\.py$" }  # 两个正则都必须匹配（AND）
+
+# 注意事项：
+# - 所有路径都是相对于项目根目录的，使用 Unix 风格路径分隔符（/），在 Windows 下也自动转换。
+# - 通配符匹配使用 fnmatch 规则（与 .gitignore 类似，但路径分隔符需显式匹配）。
+# - 正则表达式使用 Rust regex 语法，注意转义（如 \\. 表示点）。
+# - 基础规则 unix_hide 排除的隐藏文件仍可被附加规则强制包含。
+# - 如果基础扩展名为空，则所有文件均被考虑，但仍受 unix_hide 和附加规则影响。

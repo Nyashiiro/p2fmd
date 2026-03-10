@@ -1,0 +1,29 @@
+[package]
+name = "p2fmd"
+version = "1.0.0"
+edition = "2021"
+authors = ["Your Name <your.email@example.com>"]
+description = "Project to Flattened Markdown - 高性能项目文件合并工具"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/yourusername/p2fmd"
+keywords = ["markdown", "project", "flatten", "cli", "tool"]
+categories = ["command-line-utilities", "development-tools"]
+
+[dependencies]
+anyhow = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+toml = "0.8"
+rayon = "1.8"
+walkdir = "2.4"
+regex = "1.10"
+globset = "0.4"
+sha2 = "0.10"
+ctrlc = "3.4"
+parking_lot = "0.12"
+clap = { version = "4.4", features = ["derive"] }
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
