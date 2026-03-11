@@ -2,10 +2,10 @@
 name = "p2fmd"
 version = "1.0.0"
 edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Nyashiiro <Nyashiiro@github.com>"]
 description = "Project to Flattened Markdown - 高性能项目文件合并工具"
 license = "MIT OR Apache-2.0"
-repository = "https://github.com/yourusername/p2fmd"
+repository = "https://github.com/Nyashiiro/p2fmd"
 keywords = ["markdown", "project", "flatten", "cli", "tool"]
 categories = ["command-line-utilities", "development-tools"]
 

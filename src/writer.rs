@@ -1,6 +1,7 @@
 //! 输出模块：封装 TeeWriter，负责流式写入文件并同步计算 SHA-256 哈希
 
 use crate::utils::{log_message, sanitize_filename};
+use anyhow::Context;
 use sha2::{Digest, Sha256};
 use std::fs::{self, File};
 use std::io::{self, BufWriter, Write};

@@ -85,12 +85,16 @@ fn handle_fatal_error(err: anyhow::Error) {
                 .as_ref()
                 .and_then(|p| p.file_name())
                 .and_then(|n| n.to_str())
-                .or_else(|| std::env::current_dir().ok()
-                    .and_then(|p| p.file_name())
-                    .and_then(|n| n.to_str()))
-                .unwrap_or("Fatal");
+                .map(|s| s.to_string())
+                .or_else(|| {
+                    let cwd = std::env::current_dir().ok()?;
+                    cwd.file_name()
+                        .and_then(|n| n.to_str())
+                        .map(|s| s.to_string())
+                })
+                .unwrap_or_else(|| "Fatal".to_string());
             
-            let sanitized = sanitize_filename(project_name);
+            let sanitized = sanitize_filename(&project_name);
             
             // 确定输出目录
             let out_dir = args.outpath

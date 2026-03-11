@@ -49,7 +49,7 @@ impl CompiledRule {
         if !self.condition.path_matchers.is_empty() {
             let dir_str = dirpath.to_string_lossy();
             let matched = self.condition.path_matchers.iter().any(|g| {
-                g.is_match(&dir_str) || g.is_match(dirpath)
+                g.is_match(&*dir_str) || g.is_match(dirpath)
             });
             if !matched {
                 return false;
