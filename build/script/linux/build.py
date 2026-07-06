@@ -39,20 +39,16 @@ def write_sha256(path: Path) -> Path:
 
 
 def build_binary(args: argparse.Namespace) -> None:
-    target = args.target
-    bin_name = args.bin_name
-    asset_name = args.asset_name
-
     run([
         "cargo",
         "build",
         "--release",
         "--target",
-        target,
+        args.target,
     ])
 
-    source = Path("target") / target / "release" / bin_name
-    output = Path(asset_name)
+    source = Path("target") / args.target / "release" / args.bin_name
+    output = Path(args.asset_name)
 
     if not source.exists():
         raise FileNotFoundError(f"Build output not found: {source}")
@@ -67,19 +63,16 @@ def build_binary(args: argparse.Namespace) -> None:
 
 def prepare_source_archive(args: argparse.Namespace) -> None:
     output_dir = Path(args.output_dir)
-    archive_name = args.archive_name
-    ref = args.ref
-
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    archive_path = output_dir / archive_name
+    archive_path = output_dir / args.archive_name
 
     run([
         "git",
         "archive",
         "--format=zip",
         f"--output={archive_path}",
-        ref,
+        args.ref,
     ])
 
     write_sha256(archive_path)
@@ -89,10 +82,13 @@ def prepare_source_archive(args: argparse.Namespace) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Linux build/release helper for p2fmd",
+        description="Linux build/release helper",
     )
 
-    subparsers = parser.add_subparsers(dest="command", required=True)
+    subparsers = parser.add_subparsers(
+        dest="command",
+        required=True,
+    )
 
     binary_parser = subparsers.add_parser("binary")
     binary_parser.add_argument("--target", required=True)
