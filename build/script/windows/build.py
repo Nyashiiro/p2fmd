@@ -38,17 +38,7 @@ def write_sha256(path: Path) -> Path:
     return checksum_path
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Windows build helper for p2fmd",
-    )
-
-    parser.add_argument("--target", required=True)
-    parser.add_argument("--bin-name", required=True)
-    parser.add_argument("--asset-name", required=True)
-
-    args = parser.parse_args()
-
+def build_binary(args: argparse.Namespace) -> None:
     run([
         "cargo",
         "build",
@@ -69,6 +59,26 @@ def main() -> None:
     write_sha256(output)
 
     print(f"Generated asset: {output}")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Windows build helper",
+    )
+
+    subparsers = parser.add_subparsers(
+        dest="command",
+        required=True,
+    )
+
+    binary_parser = subparsers.add_parser("binary")
+    binary_parser.add_argument("--target", required=True)
+    binary_parser.add_argument("--bin-name", required=True)
+    binary_parser.add_argument("--asset-name", required=True)
+    binary_parser.set_defaults(func=build_binary)
+
+    args = parser.parse_args()
+    args.func(args)
 
 
 if __name__ == "__main__":
